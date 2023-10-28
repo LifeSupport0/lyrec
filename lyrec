@@ -1,0 +1,138 @@
+#!/usr/bin/python
+"""Lyrec
+
+Usage:
+	lyrec init [<projname>]
+	lyrec build
+	lyrec run
+	lyrec add <dependency>
+	lyrec --version
+
+Options:
+	-h --help
+	--version
+	
+"""
+
+
+
+from docopt import docopt
+import os
+import tomlkit
+
+
+
+def lex_file(file_cont):
+	f_pos = 0
+	f_len = 0
+	line_pos = 0
+	col_pos = 0
+	toks = []
+
+	spell = ""
+
+	while f_pos < f_len:
+		
+
+		col_pos += 1
+		if file_cont[f_pos] == '\n':
+			line_pos += 1
+			col_pos = 0
+		f_pos += 1
+	return 
+
+def build(path):
+	if "project.toml" not in os.listdir():
+		print("this directory is not a project.")
+		return
+	print("building...")
+	p_conf_r = ""
+	with open("project.toml", "r") as f:
+		p_conf_r = f.read()
+	p_conf = tomlkit.parse(p_conf_r)
+	proj_name = p_conf.get("project").get("name")
+	proj_version = p_conf.get("project").get("version")
+	lyrec_version = p_conf.get("project").get("version")
+	if proj_name == None or proj_version == None or lyrec_version == None:
+		print("malformed project config.")
+		print("missing:")
+		if proj_name == None:
+			print("- name")
+		if proj_version == None:
+			print("- project version")
+		if lyrec_version == None:
+			print("- lyrec version")
+	deps = p_conf.get("project").get("dependencies")
+	
+	# lex tokens
+	token_list = {}
+	# iterate over files
+	for dir, subdirs, files in os.walk(f"{cwd}/src"):
+		for file in files:
+			with open(file, "r") as f:
+				token_list[file[len(cwd):]] = f.read()
+
+	thread_list = []
+	for file in thread_list.items():
+		
+	
+	# output to file
+	with open(f"{cwd}/build/{proj_name}", "w+") as f:
+		f.write("")
+	return
+
+def main():
+	args = docopt(__doc__, version="lyrec 0.0.1")
+
+	cwd = os.getcwd()
+
+	modes = ["init", "build", "run", "add"]
+	mode = [x for x in modes if args.get(x)][0]
+	
+	if mode == "init":
+		pname = args.get("<projname>", "")
+		if pname != "":
+			if os.path.exists(f"{cwd}/{pname}"):
+				print(f"./{pname} already exists; cannot overwrite")
+				return
+		else:
+			if os.listdir(f"{cwd}") is not []:
+				print("cannot initialize a non-empty directory")
+				return
+		print("creating project...")
+		# fun fact: ~//folder condenses to ~/folder
+		os.mkdir(f"{cwd}/{pname}")
+		os.mkdir(f"{cwd}/{pname}/src") # cwd//src if pname is ""
+		os.mkdir(f"{cwd}/{pname}/build")
+		with open(f"{cwd}/{pname}/project.toml", "w+") as f:
+			def_config = f'[project]\nname="{pname}"\nversion="0.0.1"\nlyrecversion="0.0.1"\n[dependencies]\ncore="0.0.1"'
+			f.write(def_config)
+		
+	elif mode == "build":
+		build(cwd)
+		
+	elif mode == "add":
+		if "project.toml" not in os.listdir():
+			print("this directory is not a project.")
+			return
+		dependency = args.get("<dependency>", None)
+		print(f"adding dependency '{dependency}'...")
+		with open("project.toml", "r+") as f:
+			p_conf = tomlkit.parse(f.read())
+			# check if dependency exists in local storage
+			
+			# check if dependency exists in remote
+			print(p_conf)
+			if dependency in p_conf["dependencies"].keys():
+				print(f"{dependency} already in project dependencies.")
+				return
+			p_conf["dependencies"]
+			f.truncate(0)
+			f.write(tomlkit.dumps(p_conf))
+	else:
+		print("there is nothing to do.")
+		
+	return
+
+if __name__ == "__main__":
+	main()
